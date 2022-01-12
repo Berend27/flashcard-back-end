@@ -4,7 +4,8 @@ exports.up = function(knex) {
     table.increments("id").primary();
     table.string("name").notNullable();
     table.text("description");
-  })
+    table.timestamps(true, true);
+  });
 };
 
 exports.down = function(knex) {

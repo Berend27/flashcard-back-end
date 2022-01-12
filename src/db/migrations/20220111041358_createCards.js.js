@@ -10,6 +10,7 @@ exports.up = function(knex) {
             .references("id")
             .inTable("decks")
             .onDelete("CASCADE");
+        table.timestamps(true, true);
     })
 };
 
