@@ -1,5 +1,22 @@
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
+const hasProperties = require("../errors/hasProperties");
 const decksService = require("./decks.service");
+
+// todo: REQUIRED PROPERTIES AND VALID_PROPERTIES
+
+const REQUIRED_PROPERTIES = [
+    'name'
+]
+
+const VALID_PROPERTIES = [
+    ...REQUIRED_PROPERTIES,
+    'id',
+    'description',
+    'created_at',
+    'updated_at'
+]
+
+const hasRequiredProperties = hasProperties(...REQUIRED_PROPERTIES);
 
 async function deckExists(req, res, next) {
     const deck = await decksService.read(req.params.deckId);
@@ -8,6 +25,40 @@ async function deckExists(req, res, next) {
         return next();
     }
     next({ status: 404, message: `Deck with id ${deckId} not found` });
+}
+
+function hasOnlyValidProperties(req, res, next) {
+    const { data = {} } = req.body;
+  
+    const invalidFields = Object.keys(data).filter(
+      (field) => !VALID_PROPERTIES.includes(field)
+    );
+  
+    if (invalidFields.length) {
+      return next({
+        status: 400,
+        message: `Invalid field(s): ${invalidFields.join(", ")}`,
+      });
+    }
+    next();
+}
+
+function idNotManuallySet(req, res, next) {
+    const { data = {} } = req.body;
+    if ('id' in data) {
+        return next({
+            status: 400,
+            message: `Do not manually set the id for a new deck.`,
+        });
+    }
+    next();
+}
+
+// Route Handlers
+
+async function create(req, res) {
+    const data = await decksService.create(req.body.data);
+    res.status(201).json({ data });
 }
 
 async function list(req, res) {
@@ -20,6 +71,12 @@ function read(req, res) {
 }
 
 module.exports = {
+    create: [
+        hasOnlyValidProperties,
+        idNotManuallySet,
+        hasRequiredProperties,
+        asyncErrorBoundary(create)
+    ],
     list: asyncErrorBoundary(list),
     read: [asyncErrorBoundary(deckExists), read],
 };
