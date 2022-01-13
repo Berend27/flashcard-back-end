@@ -10,6 +10,7 @@ router
 
 router
     .route("/:deckId")
+    .delete(controller.delete)
     .get(controller.read)
     .put(controller.update)
     .all(methodNotAllowed);

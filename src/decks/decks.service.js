@@ -9,6 +9,12 @@ function create(deck) {
         .then((createdRecords) => createdRecords[0]);
 }
 
+function destroy(id) {
+    return knex("decks")
+        .where({ id })
+        .del();
+}
+
 function list() {
     return knex("decks").select("*");
 }
@@ -30,6 +36,7 @@ function update(deck) {
 
 module.exports = {
     create,
+    destroy,
     list,
     read,
     update,

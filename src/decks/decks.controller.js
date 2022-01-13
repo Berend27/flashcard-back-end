@@ -61,6 +61,12 @@ async function create(req, res) {
     res.status(201).json({ data });
 }
 
+async function destroy(req, res) {
+    const { deck } = res.locals;
+    await decksService.destroy(deck.id);
+    res.sendStatus(204);
+}
+
 async function list(req, res) {
     const data = await decksService.list();
     res.json({ data });
@@ -86,6 +92,10 @@ module.exports = {
         idNotManuallySet,
         hasRequiredProperties,
         asyncErrorBoundary(create)
+    ],
+    delete: [
+        asyncErrorBoundary(deckExists),
+        asyncErrorBoundary(destroy)
     ],
     list: asyncErrorBoundary(list),
     read: [asyncErrorBoundary(deckExists), read],
