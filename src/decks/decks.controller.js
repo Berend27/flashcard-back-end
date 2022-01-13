@@ -70,6 +70,16 @@ function read(req, res) {
     res.json({ data: res.locals.deck });
 }
 
+async function update(req, res) {
+    const updatedDeck = {
+        ...res.locals.deck,
+        ...req.body.data,
+        id: res.locals.deck.id,
+    };
+    const data = await decksService.update(updatedDeck);
+    res.status(200).json({ data });
+}
+
 module.exports = {
     create: [
         hasOnlyValidProperties,
@@ -79,4 +89,9 @@ module.exports = {
     ],
     list: asyncErrorBoundary(list),
     read: [asyncErrorBoundary(deckExists), read],
+    update: [
+        asyncErrorBoundary(deckExists),
+        hasOnlyValidProperties,
+        update
+    ]
 };
