@@ -19,7 +19,8 @@ const VALID_PROPERTIES = [
 const hasRequiredProperties = hasProperties(...REQUIRED_PROPERTIES);
 
 async function cardExists(req, res, next) {
-    const card = await cardsService.read(req.params.cardId);
+    const cardId = req.params.cardId;
+    const card = await cardsService.read(cardId);
     if (card) {
         res.locals.card = card;
         return next();
@@ -37,7 +38,14 @@ async function cardHasValidDeckId(req, res, next) {
 }
 
 async function deckExists(req, res, next) {
-    const deck = await decksService.read(req.query.deckId);
+    const deckId = req.query.deckId;
+    if (!deckId) {
+        return next({ 
+            status: 404, 
+            message: `A positive deckId value is needed in the query to list all the cards in a deck.` 
+        });
+    }
+    const deck = await decksService.read(deckId);
     if (deck) {
         res.locals.deck = deck;
         return next();
@@ -79,6 +87,12 @@ async function create(req, res) {
     res.status(201).json({ data });
 }
 
+async function destroy(req, res) {
+    const id = res.locals.card.id;
+    await cardsService.destroy(id);
+    res.sendStatus(204);
+}
+
 async function listCardsForDeck(req, res) {
     const data = await cardsService.listForDeck(res.locals.deck.id);
     res.json({ data });
@@ -86,6 +100,16 @@ async function listCardsForDeck(req, res) {
 
 function read(req, res) {
     res.json({ data: res.locals.card });
+}
+
+async function update(req, res) {
+    const updatedCard = {
+        ...res.locals.card,
+        ...req.body.data,
+        id: res.locals.card.id,
+    };
+    const data = await cardsService.update(updatedCard);
+    res.status(200).json({ data });
 }
 
 module.exports = {
@@ -96,6 +120,10 @@ module.exports = {
         asyncErrorBoundary(cardHasValidDeckId),
         asyncErrorBoundary(create)
     ],
+    delete: [
+        asyncErrorBoundary(cardExists),
+        asyncErrorBoundary(destroy)
+    ],
     listCardsForDeck: [
         asyncErrorBoundary(deckExists),
         asyncErrorBoundary(listCardsForDeck)
@@ -104,4 +132,9 @@ module.exports = {
         asyncErrorBoundary(cardExists),
         read
     ],
+    update: [
+        asyncErrorBoundary(cardExists),
+        hasOnlyValidProperties,
+        update
+    ]
 }

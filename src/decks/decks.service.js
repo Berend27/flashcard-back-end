@@ -39,5 +39,5 @@ module.exports = {
     destroy,
     list,
     read,
-    update,
+    update
 }

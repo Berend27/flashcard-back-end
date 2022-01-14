@@ -1,12 +1,16 @@
 const knex = require("../db/connection");
 
-// todo: create, delete, update
-
 function create(card) {
     return knex("cards")
         .insert(card)
         .returning("*")
         .then(createdRecords => createdRecords[0]);
+}
+
+function destroy(id) {
+    return knex("cards")
+        .where({ id })
+        .del();
 }
 
 function listForDeck(deckId) {
@@ -22,8 +26,18 @@ function read(id) {
         .first();
 }
 
+function update(card) {
+    return knex("cards")
+        .select("*")
+        .where({ id: card.id })
+        .update(card, "*")
+        .then(updatedRecords => updatedRecords[0]);
+}
+
 module.exports = {
     create,
+    destroy,
     listForDeck,
     read,
+    update
 }

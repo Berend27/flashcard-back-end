@@ -10,7 +10,9 @@ router
 
 router
     .route("/:cardId")
+    .delete(controller.delete)
     .get(controller.read)
+    .put(controller.update)
     .all(methodNotAllowed);
 
 module.exports = router;
