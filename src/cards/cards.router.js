@@ -7,4 +7,9 @@ router
     .get(controller.listCardsForDeck)
     .all(methodNotAllowed);
 
+router
+    .route("/:cardId")
+    .get(controller.read)
+    .all(methodNotAllowed);
+
 module.exports = router;

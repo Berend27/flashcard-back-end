@@ -1,6 +1,8 @@
 const knex = require("../db/connection");
 
-// todo: listForDeck, read, create, delete, update
+// todo: read, create, delete, update
+
+
 
 function listForDeck(deckId) {
     return knex("cards")
@@ -8,6 +10,14 @@ function listForDeck(deckId) {
         .where({ deckId });
 }
 
+function read(id) {
+    return knex("cards")
+        .select("*")
+        .where({ id })
+        .first();
+}
+
 module.exports = {
     listForDeck,
+    read,
 }
