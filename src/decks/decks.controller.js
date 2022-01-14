@@ -1,5 +1,6 @@
 const asyncErrorBoundary = require("../errors/asyncErrorBoundary");
 const hasProperties = require("../errors/hasProperties");
+const cardsService = require("../cards/cards.service");
 const decksService = require("./decks.service");
 
 // todo: REQUIRED PROPERTIES AND VALID_PROPERTIES
@@ -69,6 +70,13 @@ async function destroy(req, res) {
 
 async function list(req, res) {
     const data = await decksService.list();
+    const embed = req.query._embed;
+    if (embed === 'cards') {
+        for (let deck of data) {
+            const cards = await cardsService.listForDeck(deck.id);
+            deck.cards = cards;
+        }
+    }
     res.json({ data });
 }
 
