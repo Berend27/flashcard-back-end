@@ -1,8 +1,13 @@
 const knex = require("../db/connection");
 
-// todo: read, create, delete, update
+// todo: create, delete, update
 
-
+function create(card) {
+    return knex("cards")
+        .insert(card)
+        .returning("*")
+        .then(createdRecords => createdRecords[0]);
+}
 
 function listForDeck(deckId) {
     return knex("cards")
@@ -18,6 +23,7 @@ function read(id) {
 }
 
 module.exports = {
+    create,
     listForDeck,
     read,
 }

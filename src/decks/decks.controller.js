@@ -48,7 +48,7 @@ function idNotManuallySet(req, res, next) {
     if ('id' in data) {
         return next({
             status: 400,
-            message: `Do not manually set the id for a new deck.`,
+            message: `Do not manually set the id for a deck.`,
         });
     }
     next();

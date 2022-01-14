@@ -5,6 +5,7 @@ const methodNotAllowed = require("../errors/methodNotAllowed");
 router
     .route("/")
     .get(controller.listCardsForDeck)
+    .post(controller.create)
     .all(methodNotAllowed);
 
 router
