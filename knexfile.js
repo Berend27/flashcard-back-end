@@ -3,21 +3,16 @@ const path = require("path");
 require("dotenv").config();
 
 const {
-  NODE_ENV = "development",
   DEV_URL,
   PROD_URL,
+  TEST_URL,
 } = process.env;
-
-const URL =
-  NODE_ENV === "production"
-    ? PROD_URL
-    : DEV_URL;
 
 module.exports = {
 
   development: {
     client: "postgresql",
-    connection: URL,
+    connection: DEV_URL,
     pool: { min: 0, max: 5 },
     migrations: {
       directory: path.join(__dirname, "src", "db", "migrations"),
@@ -29,7 +24,19 @@ module.exports = {
 
   production: {
     client: "postgresql",
-    connection: URL,
+    connection: PROD_URL,
+    pool: { min: 0, max: 5 },
+    migrations: {
+      directory: path.join(__dirname, "src", "db", "migrations"),
+    },
+    seeds: {
+      directory: path.join(__dirname, "src", "db", "seeds"),
+    },
+  },
+
+  test: {
+    client: "postgresql",
+    connection: TEST_URL,
     pool: { min: 0, max: 5 },
     migrations: {
       directory: path.join(__dirname, "src", "db", "migrations"),
