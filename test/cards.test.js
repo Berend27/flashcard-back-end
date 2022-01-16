@@ -23,7 +23,7 @@ describe('cards API routes', () => {
     });
 
     describe('GET /cards', () => {
-        it('should get all cards with a deckId of 1', () => {
+        it('should get all cards with a deckId of 1', (done) => {
             chai.request(app)
                 .get('/cards?deckId=1')
                 .end((err, res) => {
@@ -38,20 +38,22 @@ describe('cards API routes', () => {
                     expect(res.body.data[2]).to.have.property('deckId').equal(1);
                     expect(res.body.data[2]).to.have.property('created_at');
                     expect(res.body.data[2]).to.have.property('updated_at');
+                    done();
                 });
         });
 
-        it('should return a response with a status of 404 for a nonexistent deck', () => {
+        it('should return a response with a status of 404 for a nonexistent deck', (done) => {
             chai.request(app)
                 .get('/cards?deckId=1000')
                 .end((err, res) => {
                     expect(res.status).to.equal(404);
+                    done();
                 });
         });
     });
 
     describe('POST /cards', () => {
-        it('should post a new card', () => {
+        it('should post a new card', (done) => {
             chai.request(app)
                 .post('/cards')
                 .send({
@@ -71,10 +73,11 @@ describe('cards API routes', () => {
                     expect(res.body.data).to.have.property('deckId').equal(1);
                     expect(res.body.data).to.have.property('created_at');
                     expect(res.body.data).to.have.property('updated_at');
+                    done();
                 });
         });
 
-        it('should not post a card without a "front" property', () => {
+        it('should not post a card without a "front" property', (done) => {
             chai.request(app)
                 .post('/cards')
                 .send({
@@ -86,7 +89,98 @@ describe('cards API routes', () => {
                 .end((err, res) => {
                     expect(res.status).to.equal(400);
                     expect(res.error.text).to.equal(`{"error":"A 'front' property is required."}`);
+                    done()
                 });
         })
-    })
+
+        it('should not post a card with an invalid property', (done) => {
+            chai.request(app)
+                .post('/cards')
+                .send({
+                    "data": {
+                        "invalid": "Invalid",
+                        "front": "Front",
+                        "back": "Back",
+                        "deckId": 1
+                    }
+                })
+                .end((err, res) => {
+                    expect(res.status).to.equal(400);
+                    expect(res.error.text).to.have.string(`Invalid field`);
+                    done()
+                });
+        });
+
+        it('should not post a card with an that is manually set', (done) => {
+            chai.request(app)
+                .post('/cards')
+                .send({
+                    "data": {
+                        "id": 1,
+                        "front": "Front",
+                        "back": "Back",
+                        "deckId": 1
+                    }
+                })
+                .end((err, res) => {
+                    expect(res.status).to.equal(400);
+                    expect(res.error.text).to.have.string(`Do not manually set the id for a card.`);
+                    done();
+                });
+        });
+    });
+
+    describe('DELETE /cards/:cardId', () => {
+        it('should delete a card with the specified id', (done) => {
+            const cardId = 1;
+            chai.request(app)
+                .delete('/cards/' + cardId)
+                .end((err, res) => {
+                    expect(res.status).to.equal(204);
+                    done();
+                });
+        });
+
+        it ('should not delete a card that isn\'t in the database', (done) => {
+            const cardId = 11;
+            chai.request(app)
+                .delete('/cards/' + cardId)
+                .end((err, res) => {
+                    expect(res.status).to.equal(404);
+                    expect(res.error.text).to.have.string(`not found`);
+                    done();
+                });
+        });
+    });
+
+    describe('GET /cards/:cardId', () => {
+        it('should get a card by id', (done) => {
+            const cardId = 3;
+            chai.request(app)
+                .get('/cards/' + cardId)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200);
+                    expect(res).to.be.json;
+                    expect(res.body).to.be.an('object');
+                    expect(res.body.data).to.have.property('id').equal(3);
+                    expect(res.body.data).to.have.property('front').equal("How do you pass data 'down' to a React child component?");
+                    expect(res.body.data).to.have.property('back').equal("As properties or props");
+                    expect(res.body.data).to.have.property('deckId').equal(1);
+                    expect(res.body.data).to.have.property('created_at');
+                    expect(res.body.data).to.have.property('updated_at');
+                    done();
+                });
+        });
+
+        it('should return a response with a status of 404 for a nonexistent card', (done) => {
+            const cardId = 11;
+            chai.request(app)
+                .get('/cards/' + cardId)
+                .end((err, res) => {
+                    expect(res.status).to.equal(404);
+                    expect(res.error.text).to.have.string(`not found`);
+                    done();
+                });
+        });
+    });
 })
