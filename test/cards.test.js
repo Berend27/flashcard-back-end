@@ -183,4 +183,90 @@ describe('cards API routes', () => {
                 });
         });
     });
-})
+
+    describe('PUT /cards/:cardId', () => {
+        it('should update an existing card', (done) => {
+            const cardId = 1;
+            const newValue = "new front";
+            const newData = {
+                "data": {
+                    "front": newValue
+                }
+            };
+            chai.request(app)
+                .put('/cards/' + cardId)
+                .send(newData)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200)
+                    expect(res.body).to.be.an('object');
+                    expect(res.body.data).to.have.property('id').eq(cardId);
+                    expect(res.body.data).to.have.property('front').eq(newValue);
+                    expect(res.body.data).to.have.property('back').eq('Virtual DOM updates are faster but do not directly update the HTML');
+                    expect(res.body.data).to.have.property('deckId').eq(1);
+                    expect(res.body.data).to.have.property('created_at');
+                    expect(res.body.data).to.have.property('updated_at');
+                    done();
+                });
+        });
+
+        it('should not update a card that is not in the database', (done) => {
+            const cardId = 11;
+            const newValue = "new front";
+            const newData = {
+                "data": {
+                    "front": newValue
+                }
+            };
+            chai.request(app)
+                .put('/cards/' + cardId)
+                .send(newData)
+                .end((err, res) => {
+                    expect(res.status).to.equal(404)
+                    expect(res.error.text).to.have.string(`not found`);
+                    done();
+                });
+        });
+
+        it('should not update a card with an invalid property', (done) => {
+            chai.request(app)
+                .put('/cards/1')
+                .send({
+                    "data": {
+                        "invalid": "Invalid",
+                        "front": "Front",
+                        "back": "Back",
+                        "deckId": 1
+                    }
+                })
+                .end((err, res) => {
+                    expect(res.status).to.equal(400);
+                    expect(res.error.text).to.have.string(`Invalid field`);
+                    done()
+                });
+        });
+
+        it('should not change the id value of a card', (done) => {
+            const cardId = 1;
+            const newValue = 2;
+            const newData = {
+                "data": {
+                    "id": newValue
+                }
+            };
+            chai.request(app)
+                .put('/cards/' + cardId)
+                .send(newData)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200)
+                    expect(res.body).to.be.an('object');
+                    expect(res.body.data).to.have.property('id').eq(cardId);
+                    expect(res.body.data).to.have.property('front').eq('Differentiate between Real DOM and Virtual DOM.');
+                    expect(res.body.data).to.have.property('back').eq('Virtual DOM updates are faster but do not directly update the HTML');
+                    expect(res.body.data).to.have.property('deckId').eq(1);
+                    expect(res.body.data).to.have.property('created_at');
+                    expect(res.body.data).to.have.property('updated_at');
+                    done();
+                });
+        });
+    });
+});
