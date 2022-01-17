@@ -91,7 +91,7 @@ describe('cards API routes', () => {
                     expect(res.error.text).to.equal(`{"error":"A 'front' property is required."}`);
                     done()
                 });
-        })
+        });
 
         it('should not post a card with an invalid property', (done) => {
             chai.request(app)
@@ -107,11 +107,11 @@ describe('cards API routes', () => {
                 .end((err, res) => {
                     expect(res.status).to.equal(400);
                     expect(res.error.text).to.have.string(`Invalid field`);
-                    done()
+                    done();
                 });
         });
 
-        it('should not post a card with an that is manually set', (done) => {
+        it('should not post a card with an id that is manually set', (done) => {
             chai.request(app)
                 .post('/cards')
                 .send({
@@ -141,7 +141,7 @@ describe('cards API routes', () => {
                 });
         });
 
-        it ('should not delete a card that isn\'t in the database', (done) => {
+        it('should not delete a card that isn\'t in the database', (done) => {
             const cardId = 11;
             chai.request(app)
                 .delete('/cards/' + cardId)

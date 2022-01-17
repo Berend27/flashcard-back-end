@@ -20,7 +20,8 @@ const VALID_PROPERTIES = [
 const hasRequiredProperties = hasProperties(...REQUIRED_PROPERTIES);
 
 async function deckExists(req, res, next) {
-    const deck = await decksService.read(req.params.deckId);
+    const deckId = req.params.deckId;
+    const deck = await decksService.read(deckId);
     if (deck) {
         res.locals.deck = deck;
         return next();
@@ -80,8 +81,16 @@ async function list(req, res) {
     res.json({ data });
 }
 
-function read(req, res) {
-    res.json({ data: res.locals.deck });
+async function read(req, res) {
+    const deck = {
+        ...res.locals.deck
+    };
+    const embed = req.query._embed;
+    if (embed === 'cards') {
+        const cards = await cardsService.listForDeck(deck.id);
+        deck.cards = cards;
+    }
+    res.json({ data: deck });
 }
 
 async function update(req, res) {
