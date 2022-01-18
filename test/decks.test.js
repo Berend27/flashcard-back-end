@@ -218,4 +218,83 @@ describe(`decks API routes`, () => {
                 });
         });
     });
+
+    describe('PUT /decks/:deckId', () => {
+        it('should update an existing deck', (done) => {
+            const deckId = 1;
+            const newName = "Rendering with React";
+            const newData = {
+                "data": {
+                    "name": newName
+                }
+            };
+            chai.request(app)
+                .put('/decks/' + deckId)
+                .send(newData)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200)
+                    expect(res.body).to.be.an('object');
+                    expect(res.body.data).to.have.property('id').eq(deckId);
+                    expect(res.body.data).to.have.property('name').eq(newName);
+                    expect(res.body.data).to.have.property('description').eq("React's component structure allows for quickly building a complex web application that relies on DOM manipulation.");
+                    expect(res.body.data).to.have.property('created_at');
+                    expect(res.body.data).to.have.property('updated_at');
+                    done();
+                });
+        });
+
+        it('should not update a deck that is not in the database', (done) => {
+            const deckId = 1000;
+            const newName = "Rendering with React";
+            const newData = {
+                "data": {
+                    "name": newName
+                }
+            };
+            chai.request(app)
+                .put('/decks/' + deckId)
+                .send(newData)
+                .end((err, res) => {
+                    expect(res.status).to.equal(404)
+                    expect(res.error.text).to.have.string(`not found`);
+                    done();
+                });
+        });
+
+        it('should not update a deck with an invalid property', (done) => {
+            const deckId = 1;
+            const newData = {
+                "data": {
+                    "invalidProperty": "abcde"
+                }
+            };
+            chai.request(app)
+                .put('/decks/' + deckId)
+                .send(newData)
+                .end((err, res) => {
+                    expect(res.status).to.equal(400);
+                    expect(res.error.text).to.have.string(`Invalid field`);
+                    done()
+                });
+        });
+
+        it('should not change the id value of a deck', (done) => {
+            const deckId = 1;
+            const newValue = 22;
+            const newData = {
+                "data": {
+                    "id": newValue
+                }
+            };
+            chai.request(app)
+                .put('/decks/' + deckId)
+                .send(newData)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200);
+                    expect(res.body).to.be.an('object');
+                    expect(res.body.data).to.have.property('id').eq(deckId);
+                    done();
+                });
+        });
+    });
 });

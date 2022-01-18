@@ -257,7 +257,7 @@ describe('cards API routes', () => {
                 .put('/cards/' + cardId)
                 .send(newData)
                 .end((err, res) => {
-                    expect(res.status).to.equal(200)
+                    expect(res.status).to.equal(200);
                     expect(res.body).to.be.an('object');
                     expect(res.body.data).to.have.property('id').eq(cardId);
                     expect(res.body.data).to.have.property('front').eq('Differentiate between Real DOM and Virtual DOM.');
