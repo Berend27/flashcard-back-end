@@ -11,7 +11,7 @@ Sample of an API Response (route: /decks/2?_embed=cards)
 [https://flashcard-o-matic-xi.vercel.app](https://flashcard-o-matic-xi.vercel.app/)
 
 ## Installation
-1. Fork and clone this repository
+1. Fork and clone this repository.
 2. Run `cp .env.sample .env`
 3. Create three databases, one for development, one for production, and one for test. Add the respective URLs to the .env file.
 4. `npm install`
